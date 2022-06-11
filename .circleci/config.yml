@@ -150,6 +150,8 @@ jobs:
       - run:
           name: Add .env vars to backend distro
           command: |
+            ls
+            touch backend/.env
             echo ENVIRONMENT=development > backend/.env
             echo TYPEORM_CONNECTION=postgres >> backend/.env
             echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> backend/.env
@@ -213,7 +215,6 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            cat .env
             npm install
             touch migres.txt
             npm run migrations > migres.txt
