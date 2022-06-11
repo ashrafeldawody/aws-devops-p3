@@ -198,6 +198,8 @@ jobs:
           name: Run DB migrations
           command: |
             cd backend
+            cat .circleci/outputs/backend_url.txt
+            cat .env
             npm install
             npm run migrations >> migration_output.txt
       - run:
