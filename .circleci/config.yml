@@ -87,6 +87,7 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - run: npm i --prefix frontend 
       - run: npm audit --audit-level=critical --prefix frontend
 
   scan-backend:
@@ -94,6 +95,7 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - run: npm i --prefix frontend 
       - run: npm audit --audit-level=critical --prefix backend
 
   deploy-infrastructure:
