@@ -189,33 +189,32 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
       - run:
-          name: Run DB migrations
+          name: Run migrations
           command: |
             cd backend
             npm install
-            touch migration_output.txt
-            npm run migrations > migration_output.txt
-            cat migration_output.txt
+            touch migres.txt
+            npm run migrations > migres.txt
+            cat migres.txt
       - run:
-          name: Store migration result in a file.
+          name: Save Migration Results
           command: |
-            cd backend
-            if grep -q "has been executed successfully." migration_output.txt
+            if grep -q "has been executed successfully." ~/project/backend/migres.txt
             then
-              touch ~/project/.circleci/outputs/db_migration_success
+              echo "1" >> ~/project/backend/migres.txt
             fi
       - persist_to_workspace:
           root: ~/
-          paths:
-            - project/.circleci/outputs/
-      - destroy_environment:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+          paths: 
+            - project/backend/migres.txt
+      - destroy-environment:
+          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
 
   deploy-frontend:
     docker:
