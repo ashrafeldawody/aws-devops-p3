@@ -25,6 +25,7 @@ Resources:
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
+      BucketName: !Sub "udapeople-backend-${ID}"
       InstanceType: t2.micro
       SecurityGroups:
         - Ref: InstanceSecurityGroup
