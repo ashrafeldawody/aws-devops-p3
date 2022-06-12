@@ -12,7 +12,7 @@ commands:
           when: on_fail
           command: |
             echo "Destroying environment: <<parameters.workflowID>> "
-            aws s3 rm s3://udapeople-frontend-<<parameters.workflowID>> --recursive
+            aws s3 rm s3://udapeople-<<parameters.workflowID>> --recursive
             aws cloudformation delete-stack --stack-name udapeople-backend-prod-<<parameters.workflowID>>
             aws cloudformation delete-stack --stack-name udapeople-frontend-prod-<<parameters.workflowID>>
             exit 1
@@ -251,7 +251,7 @@ jobs:
           name: Copy frontend to s3 bucket.
           command: |
             cd ~/project/frontend
-            aws s3 cp dist s3://udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment:
           workflowID: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
@@ -364,7 +364,7 @@ jobs:
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
               echo "third" $OldWorkflowID 
-              aws s3 rm "s3://udapeople-frontend-${OldWorkflowID}" --recursive
+              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "frontend-${OldWorkflowID}"
             fi
