@@ -256,7 +256,7 @@ jobs:
             touch frontend/.env
             echo "API_URL=http://${BACKEND_IP}:3030" >> frontend/.env
       - run:
-          name: Deploy frontend objects
+          name: Deploy frontend
           command: |
             cd frontend
             npm run build
