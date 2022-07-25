@@ -1,33 +1,94 @@
----
-- name: "install dependencies."
+- name: "Create backend app directory"
+  file:
+    path: ~/backend-app
+    state: directory
+
+- name: "Extract backend files "
+  unarchive:
+    src: artifact.tar.gz
+    dest: ~/backend-app
+
+- name: "create .env"
+  file:
+    path: "~/backend-app/.env"
+    state: touch
+
+- name: Append env file content
+  shell: |
+    echo NODE_ENV=$NODE_ENV >> ~/backend-app/.env
+    echo VERSION=$VERSION >> ~/backend-app/.env
+    echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ~/backend-app/.env
+    echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ~/backend-app/.env
+    echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> ~/backend-app/.env
+    echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> ~/backend-app/.env
+    echo TYPEORM_HOST=$TYPEORM_HOST >> ~/backend-app/.env
+    echo TYPEORM_PORT=$TYPEORM_PORT >> ~/backend-app/.env
+    echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ~/backend-app/.env
+    echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ~/backend-app/.env
+    echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ~/backend-app/.env
+    cp ~/backend-app/.env ~/backend-app/dist/.env
+
+- name: "Install NPM Deps"
+  shell: |
+    cp package-lock.json ..
+    cp package.json ..
+    cd ~/backend-app
+    npm i
+
+- name: "Install global dependencies"
+  shell: |
+    cd ~/backend-app/dist
+    npm i -g @nestjs/cli
+    npm i --save @nestjs/core @nestjs/common rxjs reflect-metadata
+    npm i --save @nestjs/swagger
+
+- name: "Run node app with PM2"
+  shell: |
+    cd ~/backend-app/dist
+    pm2 stop default
+    pm2 start main.js
+
+  register: execute_node
+  
+- name: "Creates backend app directory"
+  file:
+    path: ~/backend-app
+    state: directory
+
+- name: "Unarchive backend files"
+  unarchive:
+    src: artifact.tar.gz
+    dest: ~/backend-app
+
+- name: "Installing Node Dependencies"
+  shell: |
+    cd ~/backend-app
+    npm i
+
+- name: "Executing Node app with PM2"
+  shell: |
+    cd ~/backend-app/dist
+    pm2 stop default
+    pm2 start main.js
+
+  register: execute_node
+
+- name: print message
+  debug:
+    msg: "{{ execute_node.stdout_lines }}"
+
+- name: "Configure pm2 to start as service"
+  shell: |
+    sudo su -c "env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu"
+    pm2 save
+- name: "Print Message"
+  debug:
+    msg: "{{ execute_node.stdout_lines }}"
+
+- name: "configure PM2 service"
   become: true
-  apt:
-    name: ["nodejs", "npm"]
-    state: latest
-    update_cache: yes
-
-- name: "install pm2"
-  become: true
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present
-
-- name: Copy backend dist files web server
-  copy:
-    src: /root/project/backend
-    dest: /home/ubuntu
-
-- name: Install Node
   shell: |
-    cd /home/ubuntu/backend
-    npm install
-- name: Build Node
-  shell: |
-    cd /home/ubuntu/backend
-    npm run build
-- name: Start PM2
-  shell: |
-    cd /home/ubuntu/backend 
-    pm2 start npm --name backend -- start
+    env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ububtu --hp /home/ubuntu
+
+
+

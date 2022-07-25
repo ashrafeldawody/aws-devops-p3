@@ -1,39 +1,14 @@
-- name: Update apt packages.
-  become: yes
-  apt:
-    update_cache: yes
+- name: "Install NodeJs"
+  become: true
+  shell: |
+    curl -L https://raw.githubusercontent.com/tj/n/master/bin/n -o n
+    bash n lts
+    npm install -g n
+    n 13.9.0
+    node --version
 
-- name: Upgrade packages
-  become: yes
-  apt:
-    upgrade: "yes"
 
-- name: Remove dependencies that are no longer required.
-  become: yes
-  apt:
-    autoremove: "yes"
-
-- name: Remove dependencies that are no longer required.
-  become: yes
-  apt:
-    autoremove: "yes"
-
-- name: Install dependencies
-  become: yes
-  apt:
-    name: ["nodejs", "npm", "python3", "tar", "gzip", "git"]
-    state: latest
-    update_cache: yes
-
-- name: install pm2
-  become: yes
+- name: "Install PM2 globally"
   npm:
     name: pm2
     global: yes
-    production: yes
-    state: present
-
-- name: Create dist directory.
-  file:
-    path: "~/home/ubuntu/backend"
-    state: directory
